@@ -65,7 +65,7 @@ def next():
 
     songs_list.selection_clear(0, 'end')
     songs_list.activate(next_song)
-    songs_list.selection_set(next_song)
+    songs_list.selection_set(next_song, last=None)
 
 
 def back():
@@ -80,7 +80,7 @@ def back():
 
     songs_list.selection_clear(0, 'end')
     songs_list.activate(next_song)
-    songs_list.selection_set(next_song)
+    songs_list.selection_set(next_song, last=None)
 
 
 def delete_song():
