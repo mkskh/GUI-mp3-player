@@ -1,6 +1,8 @@
 from tkinter import *
 import pygame
 from tkinter import filedialog
+import time
+from mutagen.mp3 import MP3
 
 root = Tk()
 root.title('mp3 player')
@@ -16,9 +18,14 @@ def play():
     pygame.mixer.music.load(song)
     pygame.mixer.music.play(loops=0)
 
+    play_duration()
+
 
 def stop():
     pygame.mixer.music.stop()
+    songs_list.selection_clear(ACTIVE)
+
+    duration_box.config(text='')
 
 global pause_status
 pause_status = False
@@ -93,6 +100,29 @@ def delete_all_songs():
     pygame.mixer.music.stop()
 
 
+def play_duration():
+    current_time = pygame.mixer.music.get_pos() / 1000
+    converted_time_duration = time.strftime('%M:%S', time.gmtime(current_time))
+
+    if pygame.mixer.music.get_busy():
+        position = songs_list.curselection()
+        if position:
+            position = position[0]
+            song = songs_list.get(position)
+            song = f'/home/dci-student/all/ON_GITHUB/GUI-mp3-player/audio/{song}.mp3'
+
+            song_mut = MP3(song)
+            song_length = song_mut.info.length
+            converted_general_time = time.strftime('%M:%S', time.gmtime(song_length))
+    
+            duration_box.config(text=f'{converted_time_duration} / {converted_general_time}')
+    else:
+        duration_box.config(text='')
+
+    duration_box.after(1000, play_duration)
+
+
+
 songs_list = Listbox(root, bg='black', fg='white', width=60)
 songs_list.pack(pady=15)
 
@@ -121,7 +151,7 @@ menubar = Menu(root)
 root.config(menu=menubar)
 
 file_menu = Menu(menubar, tearoff=0)
-menubar.add_cascade(label='File', menu=file_menu)
+menubar.add_cascade(label='Add', menu=file_menu)
 file_menu.add_command(label='Add Song', command=add_song)
 file_menu.add_command(label='Add Many Songs', command=add_many_songs)
 
@@ -129,5 +159,8 @@ delete_menu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Delete', menu=delete_menu)
 delete_menu.add_command(label='Delete Current Song', command=delete_song)
 delete_menu.add_command(label='Delete All Songs', command=delete_all_songs)
+
+duration_box = Label(root, text='', bd=1, relief=GROOVE, anchor=E)
+duration_box.pack(fill=X, side=BOTTOM, ipady=2)
 
 root.mainloop()
