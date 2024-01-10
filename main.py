@@ -3,10 +3,11 @@ import pygame
 from tkinter import filedialog
 import time
 from mutagen.mp3 import MP3
+import tkinter.ttk as ttk
 
 root = Tk()
 root.title('mp3 player')
-root.geometry('500x350')
+root.geometry('500x420')
 
 pygame.mixer.init()
 
@@ -20,6 +21,9 @@ def play():
 
     play_duration()
 
+    slider_position = int(song_length)
+    my_slider.config(to=slider_position, value=0)
+
 
 def stop():
     pygame.mixer.music.stop()
@@ -29,6 +33,7 @@ def stop():
 
 global pause_status
 pause_status = False
+
 
 def pause(is_paused):
     global pause_status
@@ -112,6 +117,7 @@ def play_duration():
             song = f'/home/dci-student/all/ON_GITHUB/GUI-mp3-player/audio/{song}.mp3'
 
             song_mut = MP3(song)
+            global song_length
             song_length = song_mut.info.length
             converted_general_time = time.strftime('%M:%S', time.gmtime(song_length))
     
@@ -119,8 +125,13 @@ def play_duration():
     else:
         duration_box.config(text='')
 
+    my_slider.config(value=int(current_time))
+
     duration_box.after(1000, play_duration)
 
+
+def slide(x):
+    slider_label.config(text=f'{int(my_slider.get())} of {int(song_length)}')
 
 
 songs_list = Listbox(root, bg='black', fg='white', width=60)
@@ -162,5 +173,11 @@ delete_menu.add_command(label='Delete All Songs', command=delete_all_songs)
 
 duration_box = Label(root, text='', bd=1, relief=GROOVE, anchor=E)
 duration_box.pack(fill=X, side=BOTTOM, ipady=2)
+
+my_slider = ttk.Scale(root, from_=0, to=100, orient=HORIZONTAL, value=0, command=slide, length=360)
+my_slider.pack(pady=20)
+
+slider_label = Label(root, text='0')
+slider_label.pack(pady=10)
 
 root.mainloop()
